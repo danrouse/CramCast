@@ -97,7 +97,7 @@ $cream: rgba(255, 253, 208, 1);
 		._cramcast_progress_inner {
 			height: 100%;
 			background-color: #000;
-			transition: width .25s ease-in;
+			transition: width .1s ease-in;
 		}
 
 ._cramcast_body {
@@ -111,14 +111,20 @@ $cream: rgba(255, 253, 208, 1);
 
 	p, li {
 		font-size: 2em;
-		span {
+		> span {
 			display: inline-block;
 			position: relative;
 			height: 3em;
 			padding: 1em 0;
+
+			span {
+				text-shadow: 0px 0px 5px #000;
+				color: transparent;
+				opacity: .25;
+			}
 		}
 
-		span:nth-child(1) {
+		> span:nth-child(1) {
 			width: 40%;
 			text-align: right;
 			&:after, &:before {
@@ -141,7 +147,7 @@ $cream: rgba(255, 253, 208, 1);
 				z-index: 9002;
 			}
 		}
-		span:nth-child(2) {
+		> span:nth-child(2) {
 			text-align: left;
 		}
 		.ORP {
@@ -175,6 +181,18 @@ $cream: rgba(255, 253, 208, 1);
 	bottom: 2px;
 	font-size: .75em;
 }
+#_cramcast_button {
+	position: fixed;
+	width: auto;
+	padding: 1em;
+	background-color: rgba(255,255,255,.6);;
+	color: #000;
+	font-size: 1em;
+	bottom: 0;
+	right: 0;
+	text-align: right;
+	font-style: italic;
+}
 
 @font-face {
 	font-family: "_cramcast_icons";
@@ -207,4 +225,8 @@ button[data-action="_cramcast_speed_up"], button[data-action="_cramcast_speed_do
 }
 button[data-action="_cramcast_close"] {
 	float: right;
+}
+
+@media screen and (max-width: 400px) {
+	._cramcast_body p > span span { display: none; }
 }
