@@ -190,8 +190,10 @@
 				words.push(word);
 				last_word = word;
 			}
-			words[words.length - 1].last = true;
-			content[node].words = words;
+			if(words.length) {
+				words[words.length - 1].last = true;
+				content[node].words = words;
+			}
 		}
 	}
 	function get_ORP(word) {
