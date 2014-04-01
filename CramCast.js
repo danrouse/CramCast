@@ -245,6 +245,14 @@
 	_cramcast.frame = function() {
 		var time = new Date().getTime();
 
+		if(!_cramcast.status.font_measurements.m || !_cramcast.status.font_measurements.l || _cramcast.status.font_measurements.m == _cramcast.status.font_measurements.l) {
+			calculate_font_sizes();
+			margin = 0;
+		}
+		if(!_cramcast.settings.context_before_length) {
+			_cramcast.resize();
+		}
+
 		if((time < _cramcast.status.last_frame_time + _cramcast.status.delay + _cramcast.status.delay_add) ||
 		   (_cramcast.status.paused)) {
 			return requestAnimFrame(_cramcast.frame);
@@ -252,12 +260,15 @@
 
 		var node = content[_cramcast.status.node],
 			word = node.words[_cramcast.status.word];
+		if(!word) { word = node.words[0]; _cramcast.status.word = 0; }
 	
 		_cramcast.status.delay = 60000/(_cramcast.settings.wpm * _cramcast.settings.wpm_weight);
 		_cramcast.status.delay_add = 0;
 
 		if(word.last) {
 			_cramcast.status.delay *= _cramcast.settings.delay_last_word;
+		} else if(word.after && word.after == '.' && (!word.pos || word.pos != 'number') && word.text.length < 5 && word.text[0] == word.text[0].toUpperCase()) {
+			_cramcast.status.delay *= 1;
 		} else if(word.after && (_cramcast.settings.major_punct_symbols.indexOf(word.after) > -1)) {
 			_cramcast.status.delay *= _cramcast.settings.delay_major_punct;
 		} else if(word.after) {
@@ -272,6 +283,12 @@
 		}
 		if(word.pos && word.count && word.count > 1) {
 			_cramcast.status.delay *= _cramcast.settings.delay_minor_word * (word.count);
+		}
+
+		if(word.text.length < 4) {
+			_cramcast.status.delay *= 1 + (word.text.length / 20);
+		} else if(word.text.length > 6) {
+			_cramcast.status.delay *= 1 + ((word.text.length - 6) / 10);
 		}
 
 		if(word.quote_depth && word.quote_depth % 2) {
@@ -302,17 +319,12 @@
 		var node = content[_cramcast.status.node],
 			word = node.words[_cramcast.status.word],
 			html = '<span>',
-			margin = Math.round(_cramcast.status.font_measurements[word.ORP]/3),
 			context_before = '',
-			context_after = '';
-			
-		if(!_cramcast.status.font_measurements.m || !_cramcast.status.font_measurements.l || _cramcast.status.font_measurements.m == _cramcast.status.font_measurements.l) {
-			calculate_font_sizes();
-			margin = 0;
-		}
-		if(!_cramcast.settings.context_before_length) {
-			_cramcast.resize();
-		}
+			context_after = '',
+			margin;
+
+		if(!word) { word = node.words[0]; _cramcast.status.word = 0; }
+		margin = Math.round(_cramcast.status.font_measurements[word.ORP]/3);
 
 		for(var i=_cramcast.status.word-1;i>_cramcast.status.word-5;i--) {
 			if(!node.words[i]) { break; }
@@ -345,6 +357,9 @@
 		}
 		_cramcast.elems.progress_node_inner.style.width = Math.round((_cramcast.status.word+1)/content[_cramcast.status.node].words.length *10000)/100 + '%';
 		_cramcast.elems.actual_wpm.innerHTML = Math.round((_cramcast.status.total_words_played / (_cramcast.status.total_time_played / 60000))*10)/10 + ' WPM';
+
+		// scroll to the node in the background
+		//console.log(document.querySelector('[data-_cramcast_node="' + _cramcast.status.node + '"]'));
 	}
 	function calculate_font_sizes(letters) {
 		letters = letters || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
